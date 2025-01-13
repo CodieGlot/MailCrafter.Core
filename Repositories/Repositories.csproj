@@ -3,9 +3,19 @@
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
-	<RootNamespace>MailCrafter.Services</RootNamespace>
-	<AssemblyName>MailCrafter.Services</AssemblyName>
+	<RootNamespace>MailCrafter.Repositories</RootNamespace>
+	<AssemblyName>MailCrafter.Repositories</AssemblyName>
     <Nullable>enable</Nullable>
   </PropertyGroup>
+
+  <ItemGroup>
+	<PackageReference Include="MongoDB.Driver" Version="2.29.0" />
+	<PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Domain\Domain.csproj" />
+    <ProjectReference Include="..\Utils\Utils.csproj" />
+  </ItemGroup>
 
 </Project>
