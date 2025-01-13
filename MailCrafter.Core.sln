@@ -3,13 +3,17 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.9.34728.123
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain", "Domain\Domain.csproj", "{E7F8FDF7-4D59-439B-B8B1-8A3300F72F05}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Domain", "Domain\Domain.csproj", "{E7F8FDF7-4D59-439B-B8B1-8A3300F72F05}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Services", "Services\Services.csproj", "{3172367A-2F80-4CC8-9FF9-997BDEB224ED}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Services", "Services\Services.csproj", "{3172367A-2F80-4CC8-9FF9-997BDEB224ED}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Repositories", "Repositories\Repositories.csproj", "{ECE527CD-C9DD-49F9-B8C3-7183D4513E76}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Repositories", "Repositories\Repositories.csproj", "{ECE527CD-C9DD-49F9-B8C3-7183D4513E76}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Utils", "Utils\Utils.csproj", "{DED06BF5-551D-4948-BB99-831721BE16D6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Utils", "Utils\Utils.csproj", "{DED06BF5-551D-4948-BB99-831721BE16D6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests", "UnitTests\UnitTests.csproj", "{BBE4C136-B646-499C-8E6E-CE3EF6380AB7}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MailCrafter.Core", "MailCrafter.Core", "{61FE4056-4444-4B8B-92AD-4799CC1F470A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,9 +37,19 @@ Global
 		{DED06BF5-551D-4948-BB99-831721BE16D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DED06BF5-551D-4948-BB99-831721BE16D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DED06BF5-551D-4948-BB99-831721BE16D6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BBE4C136-B646-499C-8E6E-CE3EF6380AB7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BBE4C136-B646-499C-8E6E-CE3EF6380AB7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BBE4C136-B646-499C-8E6E-CE3EF6380AB7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BBE4C136-B646-499C-8E6E-CE3EF6380AB7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{E7F8FDF7-4D59-439B-B8B1-8A3300F72F05} = {61FE4056-4444-4B8B-92AD-4799CC1F470A}
+		{3172367A-2F80-4CC8-9FF9-997BDEB224ED} = {61FE4056-4444-4B8B-92AD-4799CC1F470A}
+		{ECE527CD-C9DD-49F9-B8C3-7183D4513E76} = {61FE4056-4444-4B8B-92AD-4799CC1F470A}
+		{DED06BF5-551D-4948-BB99-831721BE16D6} = {61FE4056-4444-4B8B-92AD-4799CC1F470A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {65BAC53B-6509-41D2-936E-AA1D271B31BD}
