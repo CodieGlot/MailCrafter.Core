@@ -2,7 +2,7 @@
 using System.Security.Cryptography;
 using System.Text;
 
-namespace MailCrafter.Services;
+namespace MailCrafter.Utils.Helpers;
 public class AesEncryptionHelper : IAesEncryptionHelper
 {
     private readonly byte[] _key;
