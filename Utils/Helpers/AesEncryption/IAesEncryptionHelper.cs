@@ -1,4 +1,4 @@
-﻿namespace MailCrafter.Services;
+﻿namespace MailCrafter.Utils.Helpers;
 
 public interface IAesEncryptionHelper
 {
