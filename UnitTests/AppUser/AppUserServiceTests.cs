@@ -9,7 +9,7 @@ public class AppUserServiceTests
     public AppUserServiceTests()
     {
         var configuration = new ConfigurationBuilder()
-            .AddJsonFile("../../Services/appsettings.Development.json", optional: false, reloadOnChange: true)
+            .AddJsonFile(@"C:\MailCrafter\Development\appsettings.Development.json", optional: true, reloadOnChange: true)
             .Build();
 
         var serviceProvider = new ServiceCollection()
