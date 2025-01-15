@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace UnitTests.AppUser;
 public class AppUserServiceTests
 {
-    //private readonly IAppUserService _appUserService;
+    private readonly IAppUserService _appUserService;
     public AppUserServiceTests()
     {
         var configuration = new ConfigurationBuilder()
@@ -16,6 +16,6 @@ public class AppUserServiceTests
             .AddCoreDependencies(configuration)
             .BuildServiceProvider();
 
-        // _appUserService = serviceProvider.GetRequiredService<IAppUserService>();
+        _appUserService = serviceProvider.GetRequiredService<IAppUserService>();
     }
 }

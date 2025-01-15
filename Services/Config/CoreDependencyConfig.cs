@@ -9,13 +9,14 @@ public static class CoreDependencyConfig
     public static IServiceCollection AddCoreDependencies(this IServiceCollection services, IConfiguration configuration)
     {
         // Load settings into options
-
+        services.AddSingleton<IConfiguration>(configuration);
 
         // Register business services
-
+        services.AddSingleton<IAppUserService, AppUserService>();
 
         // Register repositories
         services.AddSingleton<IMongoDBRepository, MongoDBRepository>();
+        services.AddSingleton<IAppUserRepository, AppUserRepository>();
 
         // Register other shared services
         services.AddSingleton<IAesEncryptionHelper, AesEncryptionHelper>();
