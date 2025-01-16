@@ -10,12 +10,12 @@ public static class CoreDependencyConfig
     {
         // Load settings into options
 
-
         // Register business services
-
+        services.AddScoped<IAppUserService, AppUserService>();
 
         // Register repositories
         services.AddSingleton<IMongoDBRepository, MongoDBRepository>();
+        services.AddScoped<IAppUserRepository, AppUserRepository>();
 
         // Register other shared services
         services.AddSingleton<IAesEncryptionHelper, AesEncryptionHelper>();
