@@ -1,4 +1,5 @@
-﻿using MailCrafter.Repositories;
+﻿using MailCrafter.Domain;
+using MailCrafter.Repositories;
 using MailCrafter.Utils.Helpers;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -9,10 +10,12 @@ public static class CoreDependencyConfig
     {
         // Register business services
         services.AddScoped<IAppUserService, AppUserService>();
+        services.AddScoped<IEmailTemplateService, EmailTemplateService>();
 
         // Register repositories
         services.AddSingleton<IMongoDBRepository, MongoDBRepository>();
         services.AddScoped<IAppUserRepository, AppUserRepository>();
+        services.AddScoped<IEmailTemplateRepository, EmailTemplateRepository>();
 
         // Register other shared services
         services.AddSingleton<IAesEncryptionHelper, AesEncryptionHelper>();
