@@ -187,7 +187,7 @@ public class MongoDBRepository : IMongoDBRepository
                                     .FirstOrDefaultAsync();
 
         var arrayFieldResult = this.GetFieldValueFromBsonDocument<List<TItem>>(result, arrayFieldName);
-        return arrayFieldResult?.Select(itemSelector.Compile()).ToList() ?? new();
+        return arrayFieldResult?.Select(itemSelector.Compile()).ToList() ?? [];
     }
 
     public async Task<MongoUpdateResult> UpdateFieldInArrayWithConditionAsync<T, TItem, TValue>(
