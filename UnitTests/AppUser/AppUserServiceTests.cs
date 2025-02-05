@@ -2,9 +2,6 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MailCrafter.Domain;
-using MailCrafter.Repositories;
-using MailCrafter.Utils.Helpers;
-using System.Security.Cryptography;
 
 namespace UnitTests.AppUser;
 public class AppUserServiceTests
