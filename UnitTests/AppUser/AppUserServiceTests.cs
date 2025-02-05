@@ -1,4 +1,5 @@
-﻿using MailCrafter.Services;
+﻿using MailCrafter.Domain;
+using MailCrafter.Services;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace UnitTests.AppUser;
