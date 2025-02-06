@@ -13,6 +13,7 @@ public abstract class CoreBaseTest
             .Build();
 
         ServiceProvider = new ServiceCollection()
+            .AddLogging()
             .AddCoreServices()
             .AddSingleton<IConfiguration>(configuration)
             .BuildServiceProvider();

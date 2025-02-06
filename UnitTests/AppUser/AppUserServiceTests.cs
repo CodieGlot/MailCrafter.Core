@@ -10,11 +10,8 @@ public class AppUserServiceTests : CoreBaseTest
     {
         _appUserService = this.ServiceProvider.GetRequiredService<IAppUserService>();
     }
-    public async Task Demo_ShouldRunSuccessfully()
-    {
-        // Act
-        await Demo();
-    }
+
+    [Fact]
     public async Task Demo()
     {
         // Create new account
