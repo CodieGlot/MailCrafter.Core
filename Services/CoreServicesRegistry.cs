@@ -8,6 +8,8 @@ public static class CoreServicesRegistry
     public static IServiceCollection AddCoreServices(this IServiceCollection services)
     {
         // Register business services
+        services.AddSingleton<ITaskQueuePublisher, TaskQueuePublisher>();
+
         services.AddScoped<IAppUserService, AppUserService>();
         services.AddScoped<IEmailTemplateService, EmailTemplateService>();
         services.AddScoped<ICustomGroupService, CustomGroupService>();
