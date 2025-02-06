@@ -3,9 +3,9 @@ using MailCrafter.Utils.Helpers;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace MailCrafter.Services;
-public static class CoreDependencyConfig
+public static class CoreServicesRegistry
 {
-    public static IServiceCollection AddCoreDependencies(this IServiceCollection services)
+    public static IServiceCollection AddCoreServices(this IServiceCollection services)
     {
         // Register business services
         services.AddScoped<IAppUserService, AppUserService>();

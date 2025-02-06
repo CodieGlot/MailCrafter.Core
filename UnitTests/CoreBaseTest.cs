@@ -9,11 +9,11 @@ public abstract class CoreBaseTest
     protected CoreBaseTest()
     {
         var configuration = new ConfigurationBuilder()
-            .AddJsonFile(@"C:\MailCrafter\Development\Core\appsettings.Development.json", optional: true, reloadOnChange: true)
+            .AddJsonFile(@"C:\MailCrafter\Development\Core\appsettings.Development.json", optional: false, reloadOnChange: true)
             .Build();
 
         ServiceProvider = new ServiceCollection()
-            .AddCoreDependencies()
+            .AddCoreServices()
             .AddSingleton<IConfiguration>(configuration)
             .BuildServiceProvider();
     }
