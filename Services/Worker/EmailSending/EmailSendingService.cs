@@ -1,5 +1,6 @@
 ﻿using MailCrafter.Domain;
 using MailCrafter.Utils.Helpers;
+using Microsoft.Extensions.Logging;
 using System.Net;
 using System.Net.Mail;
 using System.Text;
@@ -7,15 +8,18 @@ using System.Text;
 namespace MailCrafter.Services;
 public class EmailSendingService : IEmailSendingService
 {
+    private readonly ILogger<EmailSendingService> _logger;
     private readonly IAesEncryptionHelper _encryptionHelper;
     private readonly IEmailTemplateService _emailTemplateService;
     private readonly ICustomGroupService _customGroupService;
 
     public EmailSendingService(
+        ILogger<EmailSendingService> logger,
         IAesEncryptionHelper encryptionHelper,
         IEmailTemplateService emailTemplateService,
         ICustomGroupService customGroupService)
     {
+        _logger = logger;
         _encryptionHelper = encryptionHelper;
         _emailTemplateService = emailTemplateService;
         _customGroupService = customGroupService;
@@ -93,7 +97,7 @@ public class EmailSendingService : IEmailSendingService
         }
         catch (Exception ex)
         {
-            // Log error
+            _logger.LogWarning($"Error happens when sending emails from {mm.From} to {mm.To}: {ex.Message}");
         }
         finally
         {
