@@ -2,7 +2,6 @@
 using MailCrafter.Services;
 using MailCrafter.Utils.Helpers;
 using Microsoft.Extensions.DependencyInjection;
-using System.Text.Json;
 
 namespace UnitTests.Worker;
 public class TaskQueuePublisherTests : CoreBaseTest
@@ -24,11 +23,7 @@ public class TaskQueuePublisherTests : CoreBaseTest
         };
         var publisher = this.ServiceProvider.GetRequiredService<ITaskQueuePublisher>();
 
-        await publisher.PublishMessageAsync(new WorkerTaskMessage
-        {
-            TaskName = WorkerTaskNames.Send_Basic_Email,
-            Payload = JsonSerializer.SerializeToElement(details)
-        });
+        await publisher.PublishMessageAsync(WorkerTaskNames.Send_Basic_Email, details);
     }
     [Fact]
     public async Task Demo()
