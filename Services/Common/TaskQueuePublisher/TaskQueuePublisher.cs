@@ -25,7 +25,7 @@ public class TaskQueuePublisher : ITaskQueuePublisher, IAsyncDisposable
         _queueName = configuration["RabbitMQ:QueueName"] ?? string.Empty;
     }
 
-    public async Task PublishMessageAsync(WorkerTaskMessage message)
+    public async Task PublishMessageAsync(string taskName, object payload)
     {
         if (_channel == null || _connection == null)
         {
@@ -33,7 +33,12 @@ public class TaskQueuePublisher : ITaskQueuePublisher, IAsyncDisposable
             await ConnectToRabbitMqAsync();
         }
 
-        var body = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(message));
+        var taskMessage = new WorkerTaskMessage
+        {
+            TaskName = taskName,
+            Payload = JsonSerializer.SerializeToElement(payload)
+        };
+        var body = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(taskMessage));
 
         await _channel!.BasicPublishAsync(
             exchange: "",
