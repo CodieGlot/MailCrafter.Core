@@ -25,37 +25,6 @@ public class TaskQueuePublisher : ITaskQueuePublisher, IAsyncDisposable
         _queueName = configuration["RabbitMQ:QueueName"] ?? string.Empty;
     }
 
-    private async Task ConnectToRabbitMqAsync()
-    {
-        int retryCount = 5;
-        while (retryCount > 0)
-        {
-            try
-            {
-                _connection = await _connectionFactory.CreateConnectionAsync();
-                _channel = await _connection.CreateChannelAsync();
-
-                // Ensure the queue exists
-                await _channel.QueueDeclareAsync(
-                    _queueName,
-                    durable: true,
-                    exclusive: false,
-                    autoDelete: false,
-                    arguments: null);
-
-                break;
-            }
-            catch (Exception ex)
-            {
-                retryCount--;
-                _logger.LogError($"Error connecting to RabbitMQ: {ex.Message}. Retries left: {retryCount}");
-                if (retryCount == 0)
-                    throw;
-                await Task.Delay(2000);
-            }
-        }
-    }
-
     public async Task PublishMessageAsync(WorkerTaskMessage message)
     {
         if (_channel == null || _connection == null)
@@ -85,6 +54,35 @@ public class TaskQueuePublisher : ITaskQueuePublisher, IAsyncDisposable
         {
             await _connection.CloseAsync();
             await _connection.DisposeAsync();
+        }
+    }
+    private async Task ConnectToRabbitMqAsync()
+    {
+        int retryCount = 5;
+        while (retryCount > 0)
+        {
+            try
+            {
+                _connection = await _connectionFactory.CreateConnectionAsync();
+                _channel = await _connection.CreateChannelAsync();
+
+                await _channel.QueueDeclareAsync(
+                    _queueName,
+                    durable: true,
+                    exclusive: false,
+                    autoDelete: false,
+                    arguments: null);
+
+                break;
+            }
+            catch (Exception ex)
+            {
+                retryCount--;
+                _logger.LogError($"Error connecting to RabbitMQ: {ex.Message}. Retries left: {retryCount}");
+                if (retryCount == 0)
+                    throw;
+                await Task.Delay(2000);
+            }
         }
     }
 }
