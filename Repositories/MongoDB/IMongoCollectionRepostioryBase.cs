@@ -4,6 +4,7 @@ using System.Linq.Expressions;
 namespace MailCrafter.Repositories;
 public interface IMongoCollectionRepostioryBase<T> where T : MongoEntityBase
 {
+    Task<List<T?>> FindAsync(Expression<Func<T, bool>> filter);
     Task<MongoUpdateResult> AddToArrayAsync<TItem>(string id, Expression<Func<T, IEnumerable<TItem>>> arrayField, TItem newItem);
     Task<MongoInsertResult> CreateAsync(T entity);
     Task<MongoDeleteResult> DeleteAsync(string id);

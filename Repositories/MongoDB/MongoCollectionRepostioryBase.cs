@@ -73,4 +73,11 @@ public abstract class MongoCollectionRepostioryBase<T> : IMongoCollectionReposti
     {
         return await _mongoDBRepository.UpdateFieldInArrayWithConditionAsync(id, arraySelector, fieldSelector, value, identifierFilter, _collectionName);
     }
+
+    public async Task<List<T>> FindAsync(Expression<Func<T, bool>> filter)
+    {
+        return _mongoDBRepository.GetQueryable<T>(_collectionName)
+            .Where(filter)
+            .ToList();
+    }
 }
