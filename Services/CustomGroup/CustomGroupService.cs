@@ -23,7 +23,7 @@ public class CustomGroupService : ICustomGroupService
         return await _customGroupRepository.GetByIdAsync(id);
     }
 
-    public async Task<List<CustomGroupEntity>?> GetGroupsByUserId(string userId)
+    public async Task<List<CustomGroupEntity?>> GetGroupsByUserId(string userId)
     {
         return await _customGroupRepository.FindAsync(group => group.UserID == userId);
     }
