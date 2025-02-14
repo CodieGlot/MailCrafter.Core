@@ -22,6 +22,12 @@ public class CustomGroupService : ICustomGroupService
     {
         return await _customGroupRepository.GetByIdAsync(id);
     }
+
+    public async Task<List<CustomGroupEntity?>> GetGroupsByUserId(string userId)
+    {
+        return await _customGroupRepository.FindAsync(group => group.UserID == userId);
+    }
+
     public async Task<MongoReplaceResult> Update(CustomGroupEntity groupEntity)
     {
         return await _customGroupRepository.ReplaceAsync(groupEntity.ID, groupEntity);
