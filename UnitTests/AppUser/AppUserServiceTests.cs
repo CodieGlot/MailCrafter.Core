@@ -37,7 +37,7 @@ public class AppUserServiceTests : CoreBaseTest
             Alias = "Trưởng phòng nhân sự"
         };
         // Test email account related functions
-        var result4 = await _appUserService.AddEmailAccount(newAccount.ID, newEmailAccount.Email, newEmailAccount.AppPassword);
+        var result4 = await _appUserService.AddEmailAccount(newAccount.ID, newEmailAccount);
         var result5 = await _appUserService.UpdateEmailPassword(newAccount.ID, "toanhola31912004@gmail.com", newEmailAccount.AppPassword);
         var result6 = await _appUserService.GetByUsernameOrEmail(newAccount.Username);
         var result7 = await _appUserService.GetEmailAccountsOfUser(newAccount.Username);

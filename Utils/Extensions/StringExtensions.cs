@@ -9,4 +9,8 @@ public static class StringExtensions
         string pattern = @"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$";
         return Regex.IsMatch(input, pattern);
     }
+    public static string MinifyHtml(this string html)
+    {
+        return Regex.Replace(html, @"\s+", " ").Trim();
+    }
 }

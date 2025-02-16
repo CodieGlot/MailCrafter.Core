@@ -1,5 +1,6 @@
 ﻿using MailCrafter.Domain;
 using MailCrafter.Repositories;
+using MailCrafter.Utils.Extensions;
 
 namespace MailCrafter.Services;
 public class EmailTemplateService : IEmailTemplateService
@@ -12,6 +13,7 @@ public class EmailTemplateService : IEmailTemplateService
     public async Task<MongoInsertResult> Create(EmailTemplateEntity emailTemplate, bool setExpiration = false)
     {
         emailTemplate.ExpiresAt = setExpiration ? emailTemplate.CreatedAt.AddHours(1) : null;
+        emailTemplate.Body = emailTemplate.Body.MinifyHtml();
         return await _emailTemplateRepository.CreateAsync(emailTemplate);
     }
     public async Task<MongoDeleteResult> Delete(string id)

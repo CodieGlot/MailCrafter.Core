@@ -42,10 +42,9 @@ public class AppUserService : IAppUserService
     {
         return await _userRepository.GetFieldValuesInArrayAsync(id, user => user.EmailAccounts, account => account.Email);
     }
-    public async Task<MongoUpdateResult> AddEmailAccount(string id, string email, string appPassword)
+    public async Task<MongoUpdateResult> AddEmailAccount(string id, EmailAccount emailAccount)
     {
-        appPassword = _aesEncryptionHelper.Encrypt(appPassword);
-        var emailAccount = new EmailAccount { Email = email, AppPassword = appPassword };
+        emailAccount.AppPassword = _aesEncryptionHelper.Encrypt(emailAccount.AppPassword);
         return await _userRepository.AddToArrayAsync(id, user => user.EmailAccounts, emailAccount);
     }
     public async Task<MongoUpdateResult> UpdateEmailPassword(string id, string email, string newPassword)
