@@ -16,10 +16,10 @@ public class TaskQueuePublisherTests : CoreBaseTest
         var encryptionHelper = this.ServiceProvider.GetRequiredService<IAesEncryptionHelper>();
         var details = new BasicEmailDetailsModel
         {
-            TemplateID = "67a4ce14f156db8019d158e2",
-            Recipients = new List<string> { "recipient@email.com" },
-            FromMail = "from@email.com",
-            AppPassword = encryptionHelper.Encrypt("app-password"),
+            TemplateID = "67b1641f204c8d7bf4162658",
+            Recipients = new List<string> { "huynnde180472@fpt.edu.vn" },
+            FromMail = "mailcrafter.help@gmail.com",
+            AppPassword = "zGlWIXZS/8JTt2mWVJXiGytbH1MJZyZEqsY1/smSK9A=",
         };
         var publisher = this.ServiceProvider.GetRequiredService<ITaskQueuePublisher>();
 
@@ -31,9 +31,33 @@ public class TaskQueuePublisherTests : CoreBaseTest
         var emailTemplateService = this.ServiceProvider.GetRequiredService<IEmailTemplateService>();
         var result = await emailTemplateService.Create(new EmailTemplateEntity
         {
-            Subject = "Hello",
-            Body = "codie here"
+            Subject = "Share Your Thoughts: Email Usage Survey 📩",
+            Body = @"
+                <div style='font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; background-color: #f8f9fa; border-radius: 8px;'>
+                    <div style='background-color: #007bff; padding: 20px; border-radius: 8px 8px 0 0; text-align: center;'>
+                        <h2 style='color: #ffffff; margin: 0;'>We Value Your Input!</h2>
+                    </div>
+                    <div style='padding: 20px; background-color: #ffffff; border-radius: 0 0 8px 8px;'>
+                        <p style='color: #333; font-size: 16px;'>Dear {{RecipientName}},</p>
+                        <p style='color: #555; font-size: 14px; line-height: 1.6;'>
+                            Your experience matters to us! We are conducting a brief survey to understand how you use emails in your daily workflow. 
+                            Your feedback will help us enhance communication tools and improve efficiency.
+                        </p>
+                        <p style='color: #555; font-size: 14px;'><strong>The survey takes less than 2 minutes!</strong></p>
+                        <div style='text-align: center; margin: 20px 0;'>
+                            <a href='https://forms.gle/qT8DFpzurGvdhQEu5' 
+                               style='background-color: #007bff; color: #ffffff; padding: 12px 24px; font-size: 16px; text-decoration: none; border-radius: 6px; display: inline-block;'>
+                               Take the Survey
+                            </a>
+                        </div>
+                        <p style='color: #555; font-size: 14px;'>Thank you for your time and valuable insights!</p>
+                        <p style='color: #555; font-size: 14px;'>Best regards,<br><strong>The MailCrafter Team</strong></p>
+                    </div>
+                </div>
+            "
         });
         Assert.NotNull(result.InsertedID);
+
+
     }
 }
