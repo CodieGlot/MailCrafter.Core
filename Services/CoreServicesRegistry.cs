@@ -32,6 +32,7 @@ public static class CoreServicesRegistry
 
         // Register other shared services
         services.AddSingleton<IAesEncryptionHelper, AesEncryptionHelper>();
+        services.AddSingleton<IConfigServiceHelper, ConfigServiceHelper>();
 
         return services;
     }
