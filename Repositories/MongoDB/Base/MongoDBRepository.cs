@@ -33,6 +33,10 @@ public class MongoDBRepository : IMongoDBRepository
                               .Find(filter)
                               .FirstOrDefaultAsync();
     }
+    public async Task<List<T>> FindAsync<T>(Expression<Func<T, bool>> filter, string collectionName)
+    {
+        return await _database.GetCollection<T>(collectionName).Find(filter).ToListAsync();
+    }
 
     public async Task<MongoInsertResult> CreateAsync<T>(T entity, string collectionName) where T : MongoEntityBase
     {
@@ -59,6 +63,46 @@ public class MongoDBRepository : IMongoDBRepository
         var result = await _database.GetCollection<T>(collectionName)
                                     .DeleteOneAsync(x => x.ID == id);
         return new MongoDeleteResult(result);
+    }
+
+    public async Task<MongoDeleteResult> DeleteManyAsync<T>(List<string> ids, string collectionName) where T : MongoEntityBase
+    {
+        var filter = Builders<T>.Filter.In(e => e.ID, ids);
+        var result = await _database.GetCollection<T>(collectionName).DeleteManyAsync(filter);
+
+        return new MongoDeleteResult(result);
+    }
+
+    public async Task<MongoUpdateResult> UpdateManyAsync<T, TField>(List<string> ids, Expression<Func<T, TField>> fieldSelector, TField value, string collectionName) where T : MongoEntityBase
+    {
+        var filter = Builders<T>.Filter.In(e => e.ID, ids);
+        var update = Builders<T>.Update.Set(fieldSelector, value);
+
+        var result = await _database.GetCollection<T>(collectionName).UpdateManyAsync(filter, update);
+        return new MongoUpdateResult(result);
+    }
+
+    public async Task<MongoBulkWriteResult> UpdateManyAsync<T, TField>(
+        Dictionary<string, TField> idToValueMapper,
+        Expression<Func<T, TField>> fieldSelector,
+        string collectionName) where T : MongoEntityBase
+    {
+        var bulkOps = new List<WriteModel<T>>();
+
+        foreach (var (id, value) in idToValueMapper)
+        {
+            var filter = Builders<T>.Filter.Eq(e => e.ID, id);
+            var update = Builders<T>.Update.Set(fieldSelector, value);
+            bulkOps.Add(new UpdateOneModel<T>(filter, update));
+        }
+
+        if (bulkOps.Any())
+        {
+            var result = await _database.GetCollection<T>(collectionName).BulkWriteAsync(bulkOps);
+            return new MongoBulkWriteResult(result);
+        }
+
+        return new MongoBulkWriteResult(isAcknowledged: false, isSuccessful: false);
     }
 
     public async Task<MongoUpdateResult> UpdateFieldAsync<T, TField>(string id, Expression<Func<T, TField>> fieldSelector, TField value, string collectionName) where T : MongoEntityBase

@@ -76,8 +76,26 @@ public abstract class MongoCollectionRepostioryBase<T> : IMongoCollectionReposti
 
     public async Task<List<T>> FindAsync(Expression<Func<T, bool>> filter)
     {
-        return _mongoDBRepository.GetQueryable<T>(_collectionName)
-            .Where(filter)
-            .ToList();
+        return await _mongoDBRepository.FindAsync(filter, _collectionName);
+    }
+
+    public async Task<MongoUpdateResult> UpdateManyAsync<TField>(
+        List<string> ids,
+        Expression<Func<T, TField>> fieldSelector,
+        TField value)
+    {
+        return await _mongoDBRepository.UpdateManyAsync(ids, fieldSelector, value, _collectionName);
+    }
+
+    public async Task<MongoBulkWriteResult> UpdateManyAsync<TField>(
+        Dictionary<string, TField> idToValueMapper,
+        Expression<Func<T, TField>> fieldSelector)
+    {
+        return await _mongoDBRepository.UpdateManyAsync(idToValueMapper, fieldSelector, _collectionName);
+    }
+
+    public async Task<MongoDeleteResult> DeleteManyAsync(List<string> ids)
+    {
+        return await _mongoDBRepository.DeleteManyAsync<T>(ids, _collectionName);
     }
 }
