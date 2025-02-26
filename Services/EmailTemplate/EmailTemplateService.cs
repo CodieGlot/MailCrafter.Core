@@ -10,9 +10,8 @@ public class EmailTemplateService : IEmailTemplateService
     {
         _emailTemplateRepository = emailTemplateRepository;
     }
-    public async Task<MongoInsertResult> Create(EmailTemplateEntity emailTemplate, bool setExpiration = false)
+    public async Task<MongoInsertResult> Create(EmailTemplateEntity emailTemplate)
     {
-        emailTemplate.ExpiresAt = setExpiration ? emailTemplate.CreatedAt.AddHours(1) : null;
         emailTemplate.Body = emailTemplate.Body.MinifyHtml();
         return await _emailTemplateRepository.CreateAsync(emailTemplate);
     }

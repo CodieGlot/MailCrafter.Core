@@ -9,10 +9,9 @@ public class CustomGroupService : ICustomGroupService
     {
         _customGroupRepository = customGroupRepository;
     }
-    public async Task<MongoInsertResult> Create(CustomGroupEntity groupEntity, bool setExpiration = false)
+    public async Task<MongoInsertResult> Create(CustomGroupEntity entity)
     {
-        groupEntity.ExpiresAt = setExpiration ? groupEntity.CreatedAt.AddHours(1) : null;
-        return await _customGroupRepository.CreateAsync(groupEntity);
+        return await _customGroupRepository.CreateAsync(entity);
     }
     public async Task<MongoDeleteResult> Delete(string id)
     {
@@ -23,13 +22,13 @@ public class CustomGroupService : ICustomGroupService
         return await _customGroupRepository.GetByIdAsync(id);
     }
 
-    public async Task<List<CustomGroupEntity?>> GetGroupsByUserId(string userId)
+    public async Task<List<CustomGroupEntity>> GetGroupsByUserId(string userId)
     {
         return await _customGroupRepository.FindAsync(group => group.UserID == userId);
     }
 
-    public async Task<MongoReplaceResult> Update(CustomGroupEntity groupEntity)
+    public async Task<MongoReplaceResult> Update(CustomGroupEntity entity)
     {
-        return await _customGroupRepository.ReplaceAsync(groupEntity.ID, groupEntity);
+        return await _customGroupRepository.ReplaceAsync(entity.ID, entity);
     }
 }
