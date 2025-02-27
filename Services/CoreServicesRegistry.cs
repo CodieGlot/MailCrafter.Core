@@ -15,6 +15,7 @@ public static class CoreServicesRegistry
         services.AddScoped<IAppUserService, AppUserService>();
         services.AddScoped<IEmailTemplateService, EmailTemplateService>();
         services.AddScoped<ICustomGroupService, CustomGroupService>();
+        services.AddScoped<IEmailScheduleService, EmailScheduleService>();
 
         // Register worker services
         services.AddScoped<IEmailSendingService, EmailSendingService>();
@@ -29,6 +30,7 @@ public static class CoreServicesRegistry
         services.AddScoped<IAppUserRepository, AppUserRepository>();
         services.AddScoped<IEmailTemplateRepository, EmailTemplateRepository>();
         services.AddScoped<ICustomGroupRepository, CustomGroupRepository>();
+        services.AddScoped<IEmailScheduleRepository, EmailScheduleRepository>();
 
         // Register other shared services
         services.AddSingleton<IAesEncryptionHelper, AesEncryptionHelper>();

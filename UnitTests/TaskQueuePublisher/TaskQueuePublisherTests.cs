@@ -17,9 +17,9 @@ public class TaskQueuePublisherTests : CoreBaseTest
         var details = new BasicEmailDetailsModel
         {
             TemplateID = "67b1641f204c8d7bf4162658",
-            Recipients = new List<string> { "huynnde180472@fpt.edu.vn" },
-            FromMail = "mailcrafter.help@gmail.com",
-            AppPassword = "zGlWIXZS/8JTt2mWVJXiGytbH1MJZyZEqsY1/smSK9A=",
+            Recipients = new List<string> { "example@fpt.edu.vn" },
+            FromMail = "example@gmail.com",
+            AppPassword = "app-password",
         };
         var publisher = this.ServiceProvider.GetRequiredService<ITaskQueuePublisher>();
 
@@ -57,7 +57,5 @@ public class TaskQueuePublisherTests : CoreBaseTest
             "
         });
         Assert.NotNull(result.InsertedID);
-
-
     }
 }
