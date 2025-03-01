@@ -61,4 +61,9 @@ public class AppUserService : IAppUserService
     {
         return await _userRepository.RemoveFromArrayAsync(id, user => user.EmailAccounts, account => account.Email == email);
     }
+
+    public async Task<List<AppUserEntity?>> GetAllAppUsers()
+    {
+        return await _userRepository.FindAsync(user => true);
+    }
 }
