@@ -27,9 +27,9 @@ public class CustomGroupService : ICustomGroupService
         return await _customGroupRepository.FindAsync(group => group.UserID == userId);
     }
 
-    public async Task<List<CustomGroupEntity>> GetPageQueryData(PageQueryDTO<CustomGroupEntity> queryDTO)
+    public async Task<List<CustomGroupEntity>> GetPageQueryDataAsync(PageQueryDTO<CustomGroupEntity> queryDTO)
     {
-        return await _customGroupRepository.GetPageQueryData(queryDTO);
+        return await _customGroupRepository.GetPageQueryDataAsync(queryDTO);
     }
 
     public async Task<MongoReplaceResult> Update(CustomGroupEntity entity)

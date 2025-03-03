@@ -256,7 +256,7 @@ public class MongoDBRepository : IMongoDBRepository
         return new MongoUpdateResult(result);
     }
 
-    public async Task<List<T>> GetPageQueryData<T>(PageQueryDTO<T> queryDTO)
+    public async Task<List<T>> GetPageQueryDataAsync<T>(PageQueryDTO<T> queryDTO)
     {
         throw new NotImplementedException();
     }
