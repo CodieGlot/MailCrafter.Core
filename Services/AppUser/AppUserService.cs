@@ -62,8 +62,8 @@ public class AppUserService : IAppUserService
         return await _userRepository.RemoveFromArrayAsync(id, user => user.EmailAccounts, account => account.Email == email);
     }
 
-    public async Task<List<AppUserEntity?>> GetAllAppUsers()
+    public async Task<List<AppUserEntity>> GetPageQueryData(PageQueryDTO<AppUserEntity> queryDTO)
     {
-        return await _userRepository.FindAsync(user => true);
+        return await _userRepository.GetPageQueryData(queryDTO);
     }
 }

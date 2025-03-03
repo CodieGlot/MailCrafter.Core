@@ -256,6 +256,11 @@ public class MongoDBRepository : IMongoDBRepository
         return new MongoUpdateResult(result);
     }
 
+    public async Task<List<T>> GetPageQueryData<T>(PageQueryDTO<T> queryDTO)
+    {
+        throw new NotImplementedException();
+    }
+
     private TResult? GetFieldValueFromBsonDocument<TResult>(BsonDocument? document, string fieldName)
     {
         if (document != null && document.Contains(fieldName))
