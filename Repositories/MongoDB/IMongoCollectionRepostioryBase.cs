@@ -14,7 +14,7 @@ public interface IMongoCollectionRepostioryBase<T> where T : MongoEntityBase
     Task<TField?> GetFieldValueAsync<TField>(string id, Expression<Func<T, TField>> fieldSelector);
     Task<TResult?> GetFieldValueInArrayAsync<TItem, TResult>(string id, Expression<Func<T, IEnumerable<TItem>>> arraySelector, Expression<Func<TItem, TResult>> itemSelector, Expression<Func<TItem, bool>> identifierFilter);
     Task<List<TResult>> GetFieldValuesInArrayAsync<TItem, TResult>(string id, Expression<Func<T, IEnumerable<TItem>>> arraySelector, Expression<Func<TItem, TResult>> itemSelector);
-    Task<List<T>> GetPageQueryData(PageQueryDTO<T> queryDTO);
+    Task<List<T>> GetPageQueryDataAsync(PageQueryDTO<T> queryDTO);
     Task<MongoUpdateResult> RemoveFromArrayAsync<TItem>(string id, Expression<Func<T, IEnumerable<TItem>>> arrayField, Expression<Func<TItem, bool>> itemSelector);
     Task<MongoReplaceResult> ReplaceAsync(string id, T entity);
     Task<MongoUpdateResult> UpdateFieldAsync<TField>(string id, Expression<Func<T, TField>> fieldSelector, TField value);

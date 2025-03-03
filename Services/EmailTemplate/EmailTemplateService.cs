@@ -24,9 +24,9 @@ public class EmailTemplateService : IEmailTemplateService
         return await _emailTemplateRepository.GetByIdAsync(id);
     }
 
-    public async Task<List<EmailTemplateEntity>> GetPageQueryData(PageQueryDTO<EmailTemplateEntity> queryDTO)
+    public async Task<List<EmailTemplateEntity>> GetPageQueryDataAsync(PageQueryDTO<EmailTemplateEntity> queryDTO)
     {
-        return await _emailTemplateRepository.GetPageQueryData(queryDTO);
+        return await _emailTemplateRepository.GetPageQueryDataAsync(queryDTO);
     }
 
     public async Task<MongoReplaceResult> Update(EmailTemplateEntity emailTemplate)

@@ -8,5 +8,5 @@ public interface IBasicOperations<T>
     Task<MongoDeleteResult> Delete(string id);
     Task<T?> GetById(string id);
     Task<MongoReplaceResult> Update(T entity);
-    Task<List<T>> GetPageQueryData(PageQueryDTO<T> queryDTO);
+    Task<List<T>> GetPageQueryDataAsync(PageQueryDTO<T> queryDTO);
 }
