@@ -94,4 +94,9 @@ public class EmailScheduleService : IEmailScheduleService
     {
         return await _emailScheduleRepository.FindAsync(s => s.NextSendTime <= DateTime.UtcNow);
     }
+
+    public async Task<List<EmailScheduleEntity>> GetPageQueryData(PageQueryDTO<EmailScheduleEntity> queryDTO)
+    {
+        return await _emailScheduleRepository.GetPageQueryData(queryDTO);
+    }
 }
