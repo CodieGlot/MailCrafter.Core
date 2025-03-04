@@ -101,6 +101,6 @@ public abstract class MongoCollectionRepostioryBase<T> : IMongoCollectionReposti
 
     public async Task<List<T>> GetPageQueryDataAsync(PageQueryDTO<T> queryDTO)
     {
-        return await _mongoDBRepository.GetPageQueryDataAsync(queryDTO);
+        return await _mongoDBRepository.GetPageQueryDataAsync(queryDTO, _collectionName);
     }
 }

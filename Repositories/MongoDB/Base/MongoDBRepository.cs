@@ -256,9 +256,35 @@ public class MongoDBRepository : IMongoDBRepository
         return new MongoUpdateResult(result);
     }
 
-    public async Task<List<T>> GetPageQueryDataAsync<T>(PageQueryDTO<T> queryDTO)
+    public async Task<List<T>> GetPageQueryDataAsync<T>(PageQueryDTO<T> queryDTO, string collectionName)
     {
-        throw new NotImplementedException();
+
+        var filter = Builders<T>.Filter.Empty;
+
+        if (!string.IsNullOrEmpty(queryDTO.Search) && !string.IsNullOrEmpty(queryDTO.SearchBy))
+        {
+            var regex = new BsonRegularExpression(queryDTO.Search, "i");
+            filter = Builders<T>.Filter.Regex(queryDTO.SearchBy, regex);
+        }
+
+        var findOptions = new FindOptions<T>
+        {
+            Limit = queryDTO.Top,
+            Skip = queryDTO.Skip
+        };
+
+        if (!string.IsNullOrEmpty(queryDTO.SortBy) && queryDTO.SortOrder != SortOrder.None)
+        {
+            var sortDefinition = queryDTO.SortOrder == SortOrder.Asc
+                ? Builders<T>.Sort.Ascending(queryDTO.SortBy)
+                : Builders<T>.Sort.Descending(queryDTO.SortBy);
+
+            findOptions.Sort = sortDefinition;
+        }
+
+        var result = await _database.GetCollection<T>(collectionName).FindAsync(filter, findOptions);
+
+        return await result.ToListAsync();
     }
 
     private TResult? GetFieldValueFromBsonDocument<TResult>(BsonDocument? document, string fieldName)
