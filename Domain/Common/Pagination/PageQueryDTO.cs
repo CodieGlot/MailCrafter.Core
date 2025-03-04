@@ -1,5 +1,5 @@
 ﻿namespace MailCrafter.Domain;
-public class PageQueryDTO<T>
+public class PageQueryDTO
 {
     public int Top { get; set; } = 10;
     public int Skip { get; set; }
