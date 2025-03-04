@@ -9,4 +9,5 @@ public interface IAppUserService : IBasicOperations<AppUserEntity>
     Task<List<string>> GetEmailAccountsOfUser(string id);
     Task<MongoUpdateResult> RemoveEmailAccount(string id, string email);
     Task<MongoUpdateResult> UpdateEmailPassword(string id, string email, string newPassword);
+    Task<List<AppUserEntity>> GetPageQueryDataAsync(PageQueryDTO queryDTO);
 }

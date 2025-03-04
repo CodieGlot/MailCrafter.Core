@@ -256,9 +256,9 @@ public class MongoDBRepository : IMongoDBRepository
         return new MongoUpdateResult(result);
     }
 
-    public async Task<List<T>> GetPageQueryDataAsync<T>(PageQueryDTO<T> queryDTO, string collectionName)
+    public async Task<List<T>> GetPageQueryDataAsync<T>(PageQueryDTO queryDTO, string collectionName)
     {
-
+        var collection = _database.GetCollection<T>(collectionName);
         var filter = Builders<T>.Filter.Empty;
 
         if (!string.IsNullOrEmpty(queryDTO.Search) && !string.IsNullOrEmpty(queryDTO.SearchBy))
@@ -267,11 +267,7 @@ public class MongoDBRepository : IMongoDBRepository
             filter = Builders<T>.Filter.Regex(queryDTO.SearchBy, regex);
         }
 
-        var findOptions = new FindOptions<T>
-        {
-            Limit = queryDTO.Top,
-            Skip = queryDTO.Skip
-        };
+        var query = collection.Find(filter);
 
         if (!string.IsNullOrEmpty(queryDTO.SortBy) && queryDTO.SortOrder != SortOrder.None)
         {
@@ -279,12 +275,11 @@ public class MongoDBRepository : IMongoDBRepository
                 ? Builders<T>.Sort.Ascending(queryDTO.SortBy)
                 : Builders<T>.Sort.Descending(queryDTO.SortBy);
 
-            findOptions.Sort = sortDefinition;
+            query = query.Sort(sortDefinition);
         }
 
-        var result = await _database.GetCollection<T>(collectionName).FindAsync(filter, findOptions);
-
-        return await result.ToListAsync();
+        var result = await query.Skip(queryDTO.Skip).Limit(queryDTO.Top).ToListAsync();
+        return result;
     }
 
     private TResult? GetFieldValueFromBsonDocument<TResult>(BsonDocument? document, string fieldName)

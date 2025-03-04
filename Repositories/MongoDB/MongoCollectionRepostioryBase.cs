@@ -99,8 +99,8 @@ public abstract class MongoCollectionRepostioryBase<T> : IMongoCollectionReposti
         return await _mongoDBRepository.DeleteManyAsync<T>(ids, _collectionName);
     }
 
-    public async Task<List<T>> GetPageQueryDataAsync(PageQueryDTO<T> queryDTO)
+    public async Task<List<T>> GetPageQueryDataAsync(PageQueryDTO queryDTO)
     {
-        return await _mongoDBRepository.GetPageQueryDataAsync(queryDTO, _collectionName);
+        return await _mongoDBRepository.GetPageQueryDataAsync<T>(queryDTO, _collectionName);
     }
 }

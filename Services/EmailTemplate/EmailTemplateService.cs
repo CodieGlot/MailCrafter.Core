@@ -24,7 +24,7 @@ public class EmailTemplateService : IEmailTemplateService
         return await _emailTemplateRepository.GetByIdAsync(id);
     }
 
-    public async Task<List<EmailTemplateEntity>> GetPageQueryDataAsync(PageQueryDTO<EmailTemplateEntity> queryDTO)
+    public async Task<List<EmailTemplateEntity>> GetPageQueryDataAsync(PageQueryDTO queryDTO)
     {
         return await _emailTemplateRepository.GetPageQueryDataAsync(queryDTO);
     }
