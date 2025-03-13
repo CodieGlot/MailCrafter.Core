@@ -32,7 +32,13 @@ public class EmailSendingService : IEmailSendingService
         ArgumentNullException.ThrowIfNull(template);
 
         using var smtp = this.CreateSmtpClient(details.FromMail, decryptedPassword);
-        var mailMessage = this.CreateMailMessage(details.FromMail, template.Subject, template.Body, details.Recipients, details.CC, details.Bcc);
+        var mailMessage = this.CreateMailMessage(
+            details.FromMail,
+            this.PopulateTemplate(template.Subject, details.CustomFields),
+            this.PopulateTemplate(template.Body, details.CustomFields),
+            details.Recipients,
+            details.CC,
+            details.Bcc);
 
         await this.SendEmailAsync(smtp, mailMessage);
     }
@@ -47,7 +53,7 @@ public class EmailSendingService : IEmailSendingService
 
         using var smtp = CreateSmtpClient(details.FromMail, decryptedPassword);
 
-        var emailTasks = group.CustomFields
+        var emailTasks = group.CustomFieldsList
             .Where(cf => cf.TryGetValue("Email", out string? toEmail) && !string.IsNullOrWhiteSpace(toEmail))
             .Select(cf =>
             {
