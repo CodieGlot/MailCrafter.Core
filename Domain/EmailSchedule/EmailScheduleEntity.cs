@@ -2,7 +2,7 @@
 public class EmailScheduleEntity : MongoEntityBase
 {
     public string UserID { get; set; } = string.Empty;
-    public EmailDetailsModel? Details { get; set; }
+    public EmailDetailsAbstractModel? Details { get; set; }
     public DateTime NextSendTime { get; set; }
     public RecurrencePattern Recurrence { get; set; }
     public DateTime CalculateNextRunTime()
@@ -15,4 +15,11 @@ public class EmailScheduleEntity : MongoEntityBase
             _ => DateTime.MaxValue
         };
     }
+}
+public enum RecurrencePattern
+{
+    OneTime = 0,
+    Hourly = 1,
+    Daily = 2,
+    Weekly = 3,
 }

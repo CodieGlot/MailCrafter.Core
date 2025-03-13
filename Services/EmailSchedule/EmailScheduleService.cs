@@ -57,7 +57,7 @@ public class EmailScheduleService : IEmailScheduleService
             var taskName = string.Empty;
 
             if (schedule.Details == null) continue;
-            else if (schedule.Details is BasicEmailDetailsModel)
+            else if (schedule.Details is EmailDetailsAbstractModel)
             {
                 taskName = WorkerTaskNames.Send_Basic_Email;
             }
