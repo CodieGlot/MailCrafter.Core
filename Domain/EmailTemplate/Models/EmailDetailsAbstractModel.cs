@@ -1,13 +1,5 @@
 ﻿namespace MailCrafter.Domain;
-public class BasicEmailDetailsModel : EmailDetailsModel
-{
-    public List<string> Recipients { get; set; } = [];
-}
-public class PersonalizedEmailDetailsModel : EmailDetailsModel
-{
-    public string GroupID { get; set; } = string.Empty;
-}
-public class EmailDetailsModel
+public abstract class EmailDetailsAbstractModel
 {
     public string TemplateID { get; set; } = string.Empty;
     public string FromMail { get; set; } = string.Empty;

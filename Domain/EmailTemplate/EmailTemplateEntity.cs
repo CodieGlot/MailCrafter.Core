@@ -9,3 +9,10 @@ public class EmailTemplateEntity : TimeTrackedEntity
     public List<EmailFileInfo> Attachments { get; set; } = [];
     public List<EmailFileInfo> InlineImages { get; set; } = [];
 }
+public class EmailFileInfo
+{
+    public string FileName { get; set; } = string.Empty;
+    public string FileType { get; set; } = string.Empty;
+    public string FileUrl { get; set; } = string.Empty;
+    public string? ContentId { get; set; } // Only for inline images
+}

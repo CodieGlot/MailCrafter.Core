@@ -23,7 +23,8 @@ public class MongoDBRepository : IMongoDBRepository
         return _database.GetCollection<T>(collectionName).AsQueryable();
     }
 
-    public async Task<T?> GetByIdAsync<T>(string id, string collectionName) where T : MongoEntityBase
+    public async Task<T?> GetByIdAsync<T>(string id, string collectionName)
+        where T : MongoEntityBase
     {
         return await this.GetByPropertyAsync<T>(x => x.ID == id, collectionName);
     }
@@ -38,7 +39,8 @@ public class MongoDBRepository : IMongoDBRepository
         return await _database.GetCollection<T>(collectionName).Find(filter).ToListAsync();
     }
 
-    public async Task<MongoInsertResult> CreateAsync<T>(T entity, string collectionName) where T : MongoEntityBase
+    public async Task<MongoInsertResult> CreateAsync<T>(T entity, string collectionName)
+        where T : MongoEntityBase
     {
         try
         {
@@ -58,7 +60,8 @@ public class MongoDBRepository : IMongoDBRepository
         return new MongoReplaceResult(result);
     }
 
-    public async Task<MongoDeleteResult> DeleteAsync<T>(string id, string collectionName) where T : MongoEntityBase
+    public async Task<MongoDeleteResult> DeleteAsync<T>(string id, string collectionName)
+        where T : MongoEntityBase
     {
         var result = await _database.GetCollection<T>(collectionName)
                                     .DeleteOneAsync(x => x.ID == id);
@@ -73,7 +76,10 @@ public class MongoDBRepository : IMongoDBRepository
         return new MongoDeleteResult(result);
     }
 
-    public async Task<MongoUpdateResult> UpdateManyAsync<T, TField>(List<string> ids, Expression<Func<T, TField>> fieldSelector, TField value, string collectionName) where T : MongoEntityBase
+    public async Task<MongoUpdateResult> UpdateManyAsync<T, TField>(
+        List<string> ids, Expression<Func<T, TField>> fieldSelector,
+        TField value, string collectionName)
+        where T : MongoEntityBase
     {
         var filter = Builders<T>.Filter.In(e => e.ID, ids);
         var update = Builders<T>.Update.Set(fieldSelector, value);
@@ -85,7 +91,8 @@ public class MongoDBRepository : IMongoDBRepository
     public async Task<MongoBulkWriteResult> UpdateManyAsync<T, TField>(
         Dictionary<string, TField> idToValueMapper,
         Expression<Func<T, TField>> fieldSelector,
-        string collectionName) where T : MongoEntityBase
+        string collectionName)
+        where T : MongoEntityBase
     {
         var bulkOps = new List<WriteModel<T>>();
 
@@ -105,7 +112,10 @@ public class MongoDBRepository : IMongoDBRepository
         return new MongoBulkWriteResult(isAcknowledged: false, isSuccessful: false);
     }
 
-    public async Task<MongoUpdateResult> UpdateFieldAsync<T, TField>(string id, Expression<Func<T, TField>> fieldSelector, TField value, string collectionName) where T : MongoEntityBase
+    public async Task<MongoUpdateResult> UpdateFieldAsync<T, TField>(
+        string id, Expression<Func<T, TField>> fieldSelector,
+        TField value, string collectionName)
+        where T : MongoEntityBase
     {
         var filter = Builders<T>.Filter.Eq(x => x.ID, id);
 
@@ -189,7 +199,8 @@ public class MongoDBRepository : IMongoDBRepository
         Expression<Func<T, IEnumerable<TItem>>> arraySelector,
         Expression<Func<TItem, TResult>> itemSelector,
         Expression<Func<TItem, bool>> identifierFilter,
-        string collectionName) where T : MongoEntityBase
+        string collectionName)
+        where T : MongoEntityBase
     {
         var documentFilter = Builders<T>.Filter.Eq(x => x.ID, id);
         var itemFilter = Builders<TItem>.Filter.Where(identifierFilter);
@@ -215,7 +226,8 @@ public class MongoDBRepository : IMongoDBRepository
         string id,
         Expression<Func<T, IEnumerable<TItem>>> arraySelector,
         Expression<Func<TItem, TResult>> itemSelector,
-        string collectionName) where T : MongoEntityBase
+        string collectionName)
+        where T : MongoEntityBase
     {
         var filter = Builders<T>.Filter.Eq(x => x.ID, id);
 
