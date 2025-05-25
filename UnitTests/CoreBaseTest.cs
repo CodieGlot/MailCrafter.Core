@@ -16,6 +16,7 @@ public abstract class CoreBaseTest
             .AddLogging()
             .AddCoreServices()
             .AddSingleton<IConfiguration>(configuration)
+            .AddSingleton<MVCTaskQueueInstance>()
             .BuildServiceProvider();
     }
 }
