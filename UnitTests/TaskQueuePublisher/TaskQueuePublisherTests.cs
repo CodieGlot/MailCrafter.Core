@@ -19,7 +19,7 @@ public class TaskQueuePublisherTests : CoreBaseTest
             TemplateID = "67b1641f204c8d7bf4162658",
             Recipients = new List<string> { "example@fpt.edu.vn" },
             FromMail = "example@gmail.com",
-            AppPassword = "app-password",
+            AppPassword = encryptionHelper.Encrypt("app-password"),
         };
         var publisher = this.ServiceProvider.GetRequiredService<ITaskQueuePublisher>();
 
