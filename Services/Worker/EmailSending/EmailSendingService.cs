@@ -77,18 +77,40 @@ public class EmailSendingService : IEmailSendingService
 
             using var smtp = CreateSmtpClient(details.FromMail, decryptedPassword);
 
-            // Process each email individually instead of in parallel
-            foreach (var cf in group.CustomFieldsList.Where(cf => cf.TryGetValue("Email", out string? toEmail) && !string.IsNullOrWhiteSpace(toEmail)))
+            // Group custom fields by email address
+            var emailGroups = group.CustomFieldsList
+                .Where(cf => cf.TryGetValue("Email", out string? email) && !string.IsNullOrWhiteSpace(email))
+                .GroupBy(cf => cf["Email"].Trim())
+                .ToDictionary(g => g.Key, g => g.ToList());
+
+            // Process each email with all its fields
+            foreach (var emailGroup in emailGroups)
             {
                 try
                 {
-                    var toEmail = cf["Email"].Trim();
-                    _logger.LogInformation("Processing email: {Email}", toEmail);
+                    var toEmail = emailGroup.Key;
+
+                    // Create a dictionary for template replacement using fieldName as key
+                    var templateFields = new Dictionary<string, string>();
+                    
+                    // Combine all fields for this email
+                    foreach (var cf in emailGroup.Value)
+                    {
+                        var fieldName = cf.GetValueOrDefault("fieldName", "").Trim();
+                        var fieldValue = cf.GetValueOrDefault("fieldValue", "").Trim();
+                        if (!string.IsNullOrEmpty(fieldName))
+                        {
+                            templateFields[fieldName] = fieldValue;
+                        }
+                    }
+
+                    _logger.LogInformation("Template fields for {Email}: {Fields}", toEmail, 
+                        string.Join(", ", templateFields.Select(kv => $"{kv.Key}={kv.Value}")));
 
                     var mailMessage = this.CreateMailMessage(
                         details.FromMail,
-                        this.PopulateTemplate(template.Subject, cf),
-                        this.PopulateTemplate(template.Body, cf),
+                        this.PopulateTemplate(template.Subject, templateFields),
+                        this.PopulateTemplate(template.Body, templateFields),
                         new[] { toEmail },
                         details.CC,
                         details.Bcc
@@ -98,7 +120,7 @@ public class EmailSendingService : IEmailSendingService
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Error processing email for recipient: {Email}", cf.GetValueOrDefault("Email", "unknown"));
+                    _logger.LogError(ex, "Error processing email for recipient: {Email}", emailGroup.Key);
                     // Continue with next email instead of failing the entire job
                 }
             }
@@ -178,7 +200,6 @@ public class EmailSendingService : IEmailSendingService
                     try
                     {
                         var trimmedEmail = email.Trim();
-                        _logger.LogInformation("Adding email to collection: {Email}", trimmedEmail);
                         collection.Add(new MailAddress(trimmedEmail));
                     }
                     catch (Exception ex)
