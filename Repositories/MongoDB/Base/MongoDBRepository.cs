@@ -1,6 +1,7 @@
 ﻿using MailCrafter.Domain;
 using MailCrafter.Utils.Extensions;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
@@ -12,10 +13,12 @@ namespace MailCrafter.Repositories;
 public class MongoDBRepository : IMongoDBRepository
 {
     private readonly IMongoDatabase _database;
+    private readonly ILogger<MongoDBRepository> _logger;
 
-    public MongoDBRepository(IMongoClient mongoClient, IConfiguration configuration)
+    public MongoDBRepository(IMongoClient mongoClient, IConfiguration configuration, ILogger<MongoDBRepository> logger)
     {
         _database = mongoClient.GetDatabase(configuration["MongoDB:DatabaseName"]);
+        _logger = logger;
     }
 
     public IMongoQueryable<T> GetQueryable<T>(string collectionName)
@@ -44,11 +47,14 @@ public class MongoDBRepository : IMongoDBRepository
     {
         try
         {
+            _logger.LogInformation("Inserting document into collection {CollectionName}", collectionName);
             await _database.GetCollection<T>(collectionName).InsertOneAsync(entity);
+            _logger.LogInformation("Document inserted successfully with ID: {DocumentId}", entity.ID);
             return new MongoInsertResult(true, entity.ID);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            _logger.LogError(ex, "Error inserting document into collection {CollectionName}", collectionName);
             return new MongoInsertResult(false, entity.ID);
         }
     }

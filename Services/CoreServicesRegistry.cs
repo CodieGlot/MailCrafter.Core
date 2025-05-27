@@ -1,4 +1,5 @@
 ﻿using MailCrafter.Repositories;
+using MailCrafter.Repositories.EmailJob;
 using MailCrafter.Utils.Helpers;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,6 +17,7 @@ public static class CoreServicesRegistry
         services.AddScoped<IEmailTemplateService, EmailTemplateService>();
         services.AddScoped<ICustomGroupService, CustomGroupService>();
         services.AddScoped<IEmailScheduleService, EmailScheduleService>();
+        services.AddScoped<IEmailJobService, EmailJobService>();
 
         // Register worker services
         services.AddScoped<IEmailSendingService, EmailSendingService>();
@@ -31,6 +33,8 @@ public static class CoreServicesRegistry
         services.AddScoped<IEmailTemplateRepository, EmailTemplateRepository>();
         services.AddScoped<ICustomGroupRepository, CustomGroupRepository>();
         services.AddScoped<IEmailScheduleRepository, EmailScheduleRepository>();
+        services.AddScoped<IEmailJobRepository, EmailJobRepository>();
+
 
         // Register other shared services
         services.AddSingleton<IAesEncryptionHelper, AesEncryptionHelper>();
