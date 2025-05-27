@@ -40,7 +40,8 @@ public class AppUserService : IAppUserService
     }
     public async Task<List<string>> GetEmailAccountsOfUser(string id)
     {
-        return await _userRepository.GetFieldValuesInArrayAsync(id, user => user.EmailAccounts, account => account.Email);
+        var user = await _userRepository.GetByIdAsync(id);
+        return user?.EmailAccounts?.Select(account => account.Email).ToList() ?? [];
     }
     public async Task<MongoUpdateResult> AddEmailAccount(string id, EmailAccount emailAccount)
     {

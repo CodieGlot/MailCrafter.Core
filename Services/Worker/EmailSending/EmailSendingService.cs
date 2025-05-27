@@ -12,63 +12,107 @@ public class EmailSendingService : IEmailSendingService
     private readonly IAesEncryptionHelper _encryptionHelper;
     private readonly IEmailTemplateService _emailTemplateService;
     private readonly ICustomGroupService _customGroupService;
+    private readonly IEmailJobService _emailJobService;
 
     public EmailSendingService(
         ILogger<EmailSendingService> logger,
         IAesEncryptionHelper encryptionHelper,
         IEmailTemplateService emailTemplateService,
-        ICustomGroupService customGroupService)
+        ICustomGroupService customGroupService,
+        IEmailJobService emailJobService)
     {
         _logger = logger;
         _encryptionHelper = encryptionHelper;
         _emailTemplateService = emailTemplateService;
         _customGroupService = customGroupService;
+        _emailJobService = emailJobService;
     }
 
     public async Task SendBasicEmailsAsync(BasicEmailDetailsModel details)
     {
-        var decryptedPassword = _encryptionHelper.Decrypt(details.AppPassword);
-        var template = await _emailTemplateService.GetById(details.TemplateID);
-        ArgumentNullException.ThrowIfNull(template);
+        try
+        {
+            // Update job status to Processing
+            await _emailJobService.UpdateStatusAsync(details.JobId, "Processing");
 
-        using var smtp = this.CreateSmtpClient(details.FromMail, decryptedPassword);
-        var mailMessage = this.CreateMailMessage(
-            details.FromMail,
-            this.PopulateTemplate(template.Subject, details.CustomFields),
-            this.PopulateTemplate(template.Body, details.CustomFields),
-            details.Recipients,
-            details.CC,
-            details.Bcc);
+            var decryptedPassword = _encryptionHelper.Decrypt(details.AppPassword);
+            var template = await _emailTemplateService.GetById(details.TemplateID);
+            ArgumentNullException.ThrowIfNull(template);
 
-        await this.SendEmailAsync(smtp, mailMessage);
+            using var smtp = this.CreateSmtpClient(details.FromMail, decryptedPassword);
+            var mailMessage = this.CreateMailMessage(
+                details.FromMail,
+                this.PopulateTemplate(template.Subject, details.CustomFields),
+                this.PopulateTemplate(template.Body, details.CustomFields),
+                details.Recipients,
+                details.CC,
+                details.Bcc);
+
+            await this.SendEmailAsync(smtp, mailMessage);
+
+            // Update job status to Completed
+            await _emailJobService.UpdateStatusAsync(details.JobId, "Completed");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error sending basic emails");
+            // Update job status to Failed
+            await _emailJobService.UpdateStatusAsync(details.JobId, "Failed", ex.Message);
+            throw;
+        }
     }
 
     public async Task SendPersonalizedEmailsAsync(PersonalizedEmailDetailsModel details)
     {
-        var decryptedPassword = _encryptionHelper.Decrypt(details.AppPassword);
-        var template = await _emailTemplateService.GetById(details.TemplateID);
-        ArgumentNullException.ThrowIfNull(template);
-        var group = await _customGroupService.GetById(details.GroupID);
-        ArgumentNullException.ThrowIfNull(group);
+        try
+        {
+            // Update job status to Processing
+            await _emailJobService.UpdateStatusAsync(details.JobId, "Processing");
 
-        using var smtp = CreateSmtpClient(details.FromMail, decryptedPassword);
+            var decryptedPassword = _encryptionHelper.Decrypt(details.AppPassword);
+            var template = await _emailTemplateService.GetById(details.TemplateID);
+            ArgumentNullException.ThrowIfNull(template);
+            var group = await _customGroupService.GetById(details.GroupID);
+            ArgumentNullException.ThrowIfNull(group);
 
-        var emailTasks = group.CustomFieldsList
-            .Where(cf => cf.TryGetValue("Email", out string? toEmail) && !string.IsNullOrWhiteSpace(toEmail))
-            .Select(cf =>
+            using var smtp = CreateSmtpClient(details.FromMail, decryptedPassword);
+
+            // Process each email individually instead of in parallel
+            foreach (var cf in group.CustomFieldsList.Where(cf => cf.TryGetValue("Email", out string? toEmail) && !string.IsNullOrWhiteSpace(toEmail)))
             {
-                var mailMessage = this.CreateMailMessage(
-                    details.FromMail,
-                    this.PopulateTemplate(template.Subject, cf),
-                    this.PopulateTemplate(template.Body, cf),
-                    [cf["Email"].ToString()!],
-                    details.CC,
-                    details.Bcc
-                );
-                return this.SendEmailAsync(smtp, mailMessage);
-            });
+                try
+                {
+                    var toEmail = cf["Email"].Trim();
+                    _logger.LogInformation("Processing email: {Email}", toEmail);
 
-        await Task.WhenAll(emailTasks);
+                    var mailMessage = this.CreateMailMessage(
+                        details.FromMail,
+                        this.PopulateTemplate(template.Subject, cf),
+                        this.PopulateTemplate(template.Body, cf),
+                        new[] { toEmail },
+                        details.CC,
+                        details.Bcc
+                    );
+
+                    await this.SendEmailAsync(smtp, mailMessage);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error processing email for recipient: {Email}", cf.GetValueOrDefault("Email", "unknown"));
+                    // Continue with next email instead of failing the entire job
+                }
+            }
+
+            // Update job status to Completed
+            await _emailJobService.UpdateStatusAsync(details.JobId, "Completed");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error sending personalized emails");
+            // Update job status to Failed
+            await _emailJobService.UpdateStatusAsync(details.JobId, "Failed", ex.Message);
+            throw;
+        }
     }
 
     private SmtpClient CreateSmtpClient(string fromEmail, string decryptedPassword) => new()
@@ -129,7 +173,20 @@ public class EmailSendingService : IEmailSendingService
         {
             foreach (var email in emails)
             {
-                collection.Add(new MailAddress(email));
+                if (!string.IsNullOrWhiteSpace(email))
+                {
+                    try
+                    {
+                        var trimmedEmail = email.Trim();
+                        _logger.LogInformation("Adding email to collection: {Email}", trimmedEmail);
+                        collection.Add(new MailAddress(trimmedEmail));
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Error adding email to collection: {Email}", email);
+                        throw;
+                    }
+                }
             }
         }
     }
