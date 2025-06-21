@@ -18,6 +18,7 @@ public static class CoreServicesRegistry
         services.AddScoped<ICustomGroupService, CustomGroupService>();
         services.AddScoped<IEmailScheduleService, EmailScheduleService>();
         services.AddScoped<IEmailJobService, EmailJobService>();
+        services.AddScoped<IEmailTrackingService, EmailTrackingService>();
 
         // Register worker services
         services.AddScoped<IEmailSendingService, EmailSendingService>();
