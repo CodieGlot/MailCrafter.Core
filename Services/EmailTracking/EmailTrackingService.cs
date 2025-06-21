@@ -1,4 +1,5 @@
 using MailCrafter.Domain;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System.Security.Cryptography;
 using System.Text;
@@ -17,25 +18,30 @@ namespace MailCrafter.Services
     {
         private readonly IEmailJobService _emailJobService;
         private readonly ILogger<EmailTrackingService> _logger;
+        private readonly string _baseUrl;
 
-        public EmailTrackingService(IEmailJobService emailJobService, ILogger<EmailTrackingService> logger)
+      
+        public EmailTrackingService(IEmailJobService emailJobService, ILogger<EmailTrackingService> logger, IConfiguration configuration)
         {
             _emailJobService = emailJobService;
             _logger = logger;
+            _baseUrl = configuration["Tracking:BaseUrl"]!;
         }
 
         public string GenerateTrackingPixel(string jobId, string recipientEmail)
         {
             var trackingData = $"{jobId}:{recipientEmail}";
             var encryptedData = EncryptTrackingData(trackingData);
-            return $"https://localhost:7177/api/tracking/pixel/{encryptedData}";
+            //return $"https://localhost:7177/api/tracking/pixel/{encryptedData}";
+            return $"{_baseUrl}/api/tracking/pixel/{encryptedData}";
         }
 
         public string GenerateTrackingLink(string originalUrl, string jobId, string recipientEmail)
         {
             var trackingData = $"{jobId}:{recipientEmail}";
             var encryptedData = EncryptTrackingData(trackingData);
-            return $"https://localhost:7177/api/tracking/click/{encryptedData}?url={Uri.EscapeDataString(originalUrl)}";
+            //return $"https://localhost:7177/api/tracking/click/{encryptedData}?url={Uri.EscapeDataString(originalUrl)}";
+            return $"{_baseUrl}/api/tracking/click/{encryptedData}?url={Uri.EscapeDataString(originalUrl)}";
         }
 
         public async Task TrackEmailOpen(string jobId, string recipientEmail)
