@@ -45,6 +45,14 @@ namespace MailCrafter.Domain
 
         public int FailedRecipients { get; set; }
 
+        public int OpenedEmails { get; set; }
+
+        public int ClickedEmails { get; set; }
+
+        public double OpenRate => TotalRecipients > 0 ? (OpenedEmails * 100.0 / TotalRecipients) : 0;
+
+        public double ClickRate => TotalRecipients > 0 ? (ClickedEmails * 100.0 / TotalRecipients) : 0;
+
         public EmailJobEntity()
         {
             Recipients = new List<string>();

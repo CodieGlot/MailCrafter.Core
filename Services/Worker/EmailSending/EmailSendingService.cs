@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using System.Net;
 using System.Net.Mail;
 using System.Text;
+using HtmlAgilityPack;
 
 namespace MailCrafter.Services;
 public class EmailSendingService : IEmailSendingService
@@ -13,19 +14,22 @@ public class EmailSendingService : IEmailSendingService
     private readonly IEmailTemplateService _emailTemplateService;
     private readonly ICustomGroupService _customGroupService;
     private readonly IEmailJobService _emailJobService;
+    private readonly IEmailTrackingService _emailTrackingService;
 
     public EmailSendingService(
         ILogger<EmailSendingService> logger,
         IAesEncryptionHelper encryptionHelper,
         IEmailTemplateService emailTemplateService,
         ICustomGroupService customGroupService,
-        IEmailJobService emailJobService)
+        IEmailJobService emailJobService,
+        IEmailTrackingService emailTrackingService)
     {
         _logger = logger;
         _encryptionHelper = encryptionHelper;
         _emailTemplateService = emailTemplateService;
         _customGroupService = customGroupService;
         _emailJobService = emailJobService;
+        _emailTrackingService = emailTrackingService;
     }
 
     public async Task SendBasicEmailsAsync(BasicEmailDetailsModel details)
@@ -46,7 +50,8 @@ public class EmailSendingService : IEmailSendingService
                 this.PopulateTemplate(template.Body, details.CustomFields),
                 details.Recipients,
                 details.CC,
-                details.Bcc);
+                details.Bcc,
+                details.JobId);
 
             await this.SendEmailAsync(smtp, mailMessage);
 
@@ -72,10 +77,11 @@ public class EmailSendingService : IEmailSendingService
             var decryptedPassword = _encryptionHelper.Decrypt(details.AppPassword);
             var template = await _emailTemplateService.GetById(details.TemplateID);
             ArgumentNullException.ThrowIfNull(template);
+
             var group = await _customGroupService.GetById(details.GroupID);
             ArgumentNullException.ThrowIfNull(group);
 
-            using var smtp = CreateSmtpClient(details.FromMail, decryptedPassword);
+            using var smtp = this.CreateSmtpClient(details.FromMail, decryptedPassword);
 
             // Group custom fields by email address
             var emailGroups = group.CustomFieldsList
@@ -83,7 +89,6 @@ public class EmailSendingService : IEmailSendingService
                 .GroupBy(cf => cf["Email"].Trim())
                 .ToDictionary(g => g.Key, g => g.ToList());
 
-            // Process each email with all its fields
             foreach (var emailGroup in emailGroups)
             {
                 try
@@ -113,8 +118,8 @@ public class EmailSendingService : IEmailSendingService
                         this.PopulateTemplate(template.Body, templateFields),
                         new[] { toEmail },
                         details.CC,
-                        details.Bcc
-                    );
+                        details.Bcc,
+                        details.JobId);
 
                     await this.SendEmailAsync(smtp, mailMessage);
                 }
@@ -145,20 +150,62 @@ public class EmailSendingService : IEmailSendingService
         Port = 587
     };
 
-    private MailMessage CreateMailMessage(string from, string subject, string body,
-        IEnumerable<string> to, IEnumerable<string> cc, IEnumerable<string> bcc)
+    private MailMessage CreateMailMessage(string fromEmail, string subject, string body, IEnumerable<string> recipients, IEnumerable<string> cc, IEnumerable<string> bcc, string jobId)
     {
-        var mm = new MailMessage
+        var message = new MailMessage
         {
-            From = new MailAddress(from),
+            From = new MailAddress(fromEmail),
             Subject = subject,
             Body = body,
             IsBodyHtml = true
         };
-        this.AddEmailsToAddressCollection(mm.To, to);
-        this.AddEmailsToAddressCollection(mm.CC, cc);
-        this.AddEmailsToAddressCollection(mm.Bcc, bcc);
-        return mm;
+
+        this.AddEmailsToAddressCollection(message.To, recipients);
+        this.AddEmailsToAddressCollection(message.CC, cc);
+        this.AddEmailsToAddressCollection(message.Bcc, bcc);
+
+        // Add tracking pixel
+        var trackingPixel = _emailTrackingService.GenerateTrackingPixel(jobId, recipients.First());
+        _logger.LogInformation("Generated tracking pixel URL: {Url}", trackingPixel);
+        var trackingPixelHtml = $"<img src='{trackingPixel}' width='1' height='1' style='display:none' />";
+        
+        // Check if body has </body> tag
+        if (message.Body.Contains("</body>"))
+        {
+            message.Body = message.Body.Replace("</body>", $"{trackingPixelHtml}</body>");
+        }
+        else
+        {
+            // If no body tag, wrap the content in body tags
+            message.Body = $"{message.Body}<body>{trackingPixelHtml}</body>";
+        }
+        _logger.LogInformation("Added tracking pixel to email body");
+
+        // Replace links with tracking links
+        var htmlDocument = new HtmlAgilityPack.HtmlDocument();
+        htmlDocument.LoadHtml(message.Body);
+        var links = htmlDocument.DocumentNode.SelectNodes("//a[@href]");
+        if (links != null)
+        {
+            _logger.LogInformation("Found {Count} links to replace with tracking links", links.Count);
+            foreach (var link in links)
+            {
+                var originalUrl = link.GetAttributeValue("href", "");
+                if (!string.IsNullOrEmpty(originalUrl) && !originalUrl.StartsWith("#"))
+                {
+                    var trackingUrl = _emailTrackingService.GenerateTrackingLink(originalUrl, jobId, recipients.First());
+                    _logger.LogInformation("Replacing link {OriginalUrl} with tracking link {TrackingUrl}", originalUrl, trackingUrl);
+                    link.SetAttributeValue("href", trackingUrl);
+                }
+            }
+            message.Body = htmlDocument.DocumentNode.OuterHtml;
+        }
+        else
+        {
+            _logger.LogInformation("No links found in email body to replace");
+        }
+
+        return message;
     }
 
     private async Task SendEmailAsync(SmtpClient smtp, MailMessage mm)
