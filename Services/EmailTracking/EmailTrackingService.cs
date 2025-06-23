@@ -45,9 +45,19 @@ namespace MailCrafter.Services
                 var job = await _emailJobService.GetByIdAsync(jobId);
                 if (job != null)
                 {
-                    job.OpenedEmails++;
-                    await _emailJobService.UpdateAsync(job);
-                    _logger.LogInformation("Tracked email open for job {JobId}, recipient {Email}", jobId, recipientEmail);
+                    if (job.OpenedRecipients == null)
+                        job.OpenedRecipients = new HashSet<string>();
+
+                    if (job.OpenedRecipients.Add(recipientEmail.ToLowerInvariant()))
+                    {
+                        job.OpenedEmails++;
+                        await _emailJobService.UpdateAsync(job);
+                        _logger.LogInformation("Tracked FIRST email open for job {JobId}, recipient {Email}", jobId, recipientEmail);
+                    }
+                    else
+                    {
+                        _logger.LogInformation("Email open already tracked for job {JobId}, recipient {Email}", jobId, recipientEmail);
+                    }
                 }
             }
             catch (Exception ex)
@@ -63,9 +73,19 @@ namespace MailCrafter.Services
                 var job = await _emailJobService.GetByIdAsync(jobId);
                 if (job != null)
                 {
-                    job.ClickedEmails++;
-                    await _emailJobService.UpdateAsync(job);
-                    _logger.LogInformation("Tracked email click for job {JobId}, recipient {Email}", jobId, recipientEmail);
+                    if (job.ClickedRecipients == null)
+                        job.ClickedRecipients = new HashSet<string>();
+
+                    if (job.ClickedRecipients.Add(recipientEmail.ToLowerInvariant()))
+                    {
+                        job.ClickedEmails++;
+                        await _emailJobService.UpdateAsync(job);
+                        _logger.LogInformation("Tracked FIRST email click for job {JobId}, recipient {Email}", jobId, recipientEmail);
+                    }
+                    else
+                    {
+                        _logger.LogInformation("Email click already tracked for job {JobId}, recipient {Email}", jobId, recipientEmail);
+                    }
                 }
             }
             catch (Exception ex)

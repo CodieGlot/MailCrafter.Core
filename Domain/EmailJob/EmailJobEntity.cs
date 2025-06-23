@@ -49,6 +49,9 @@ namespace MailCrafter.Domain
 
         public int ClickedEmails { get; set; }
 
+        public HashSet<string> OpenedRecipients { get; set; } = new HashSet<string>();
+        public HashSet<string> ClickedRecipients { get; set; } = new HashSet<string>();
+
         public double OpenRate => TotalRecipients > 0 ? (OpenedEmails * 100.0 / TotalRecipients) : 0;
 
         public double ClickRate => TotalRecipients > 0 ? (ClickedEmails * 100.0 / TotalRecipients) : 0;
