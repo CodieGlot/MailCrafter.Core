@@ -34,12 +34,6 @@ namespace MailCrafter.Services
             "AppleWebKit"
         };
 
-        private static readonly string[] ProxyIpPrefixes = new[]
-        {
-            // Add known proxy IP prefixes here, e.g. for Gmail, Outlook, etc.
-            // "66.249.", // Example: Google proxy IPs start with 66.249
-            // "40.92.",  // Example: Outlook proxy IPs
-        };
 
         public EmailTrackingService(IEmailJobService emailJobService, ILogger<EmailTrackingService> logger, IConfiguration configuration, IHttpContextAccessor httpContextAccessor)
         {
@@ -69,7 +63,7 @@ namespace MailCrafter.Services
         {
             if (!string.IsNullOrEmpty(userAgent) && ProxyUserAgents.Any(proxy => userAgent.Contains(proxy, StringComparison.OrdinalIgnoreCase)))
                 return true;
-            if (!string.IsNullOrEmpty(ip) && ProxyIpPrefixes.Any(prefix => ip.StartsWith(prefix)))
+            if (!string.IsNullOrEmpty(ip))
                 return true;
             return false;
         }
@@ -91,18 +85,24 @@ namespace MailCrafter.Services
                 var job = await _emailJobService.GetByIdAsync(jobId);
                 if (job != null)
                 {
-                    if (job.OpenedRecipients == null)
-                        job.OpenedRecipients = new HashSet<string>();
+                    if (job.OpenedRecipientCounts == null)
+                        job.OpenedRecipientCounts = new Dictionary<string, int>();
 
-                    if (job.OpenedRecipients.Add(recipientEmail.ToLowerInvariant()))
+                    var key = recipientEmail.ToLowerInvariant();
+                    if (!job.OpenedRecipientCounts.ContainsKey(key))
+                        job.OpenedRecipientCounts[key] = 0;
+
+                    job.OpenedRecipientCounts[key]++;
+
+                    if (job.OpenedRecipientCounts[key] == 2)
                     {
                         job.OpenedEmails++;
                         await _emailJobService.UpdateAsync(job);
-                        _logger.LogInformation("Tracked FIRST email open for job {JobId}, recipient {Email}", jobId, recipientEmail);
+                        _logger.LogInformation("Tracked SECOND email open for job {JobId}, recipient {Email}", jobId, recipientEmail);
                     }
                     else
                     {
-                        _logger.LogInformation("Email open already tracked for job {JobId}, recipient {Email}", jobId, recipientEmail);
+                        _logger.LogInformation("Email open for job {JobId}, recipient {Email} (count: {Count})", jobId, recipientEmail, job.OpenedRecipientCounts[key]);
                     }
                 }
             }
