@@ -3,6 +3,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System.Security.Cryptography;
 using System.Text;
+using Microsoft.AspNetCore.Http;
+using System.Linq;
 
 namespace MailCrafter.Services
 {
@@ -19,13 +21,32 @@ namespace MailCrafter.Services
         private readonly IEmailJobService _emailJobService;
         private readonly ILogger<EmailTrackingService> _logger;
         private readonly string _baseUrl;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-      
-        public EmailTrackingService(IEmailJobService emailJobService, ILogger<EmailTrackingService> logger, IConfiguration configuration)
+        private static readonly string[] ProxyUserAgents = new[]
+        {
+            "GoogleImageProxy",
+            "Google",
+            "Outlook",
+            "Microsoft Office",
+            "YahooCacheSystem",
+            "Thunderbird",
+            "AppleWebKit"
+        };
+
+        private static readonly string[] ProxyIpPrefixes = new[]
+        {
+            // Add known proxy IP prefixes here, e.g. for Gmail, Outlook, etc.
+            // "66.249.", // Example: Google proxy IPs start with 66.249
+            // "40.92.",  // Example: Outlook proxy IPs
+        };
+
+        public EmailTrackingService(IEmailJobService emailJobService, ILogger<EmailTrackingService> logger, IConfiguration configuration, IHttpContextAccessor httpContextAccessor)
         {
             _emailJobService = emailJobService;
             _logger = logger;
             _baseUrl = configuration["Tracking:BaseUrl"]!;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public string GenerateTrackingPixel(string jobId, string recipientEmail)
@@ -44,10 +65,29 @@ namespace MailCrafter.Services
             return $"https://mailcrafter-f6cyggezagarg5hs.southeastasia-01.azurewebsites.net/api/tracking/click/{encryptedData}?url={Uri.EscapeDataString(originalUrl)}";
         }
 
+        private bool IsProxyRequest(string userAgent, string ip)
+        {
+            if (!string.IsNullOrEmpty(userAgent) && ProxyUserAgents.Any(proxy => userAgent.Contains(proxy, StringComparison.OrdinalIgnoreCase)))
+                return true;
+            if (!string.IsNullOrEmpty(ip) && ProxyIpPrefixes.Any(prefix => ip.StartsWith(prefix)))
+                return true;
+            return false;
+        }
+
         public async Task TrackEmailOpen(string jobId, string recipientEmail)
         {
             try
             {
+                var httpContext = _httpContextAccessor?.HttpContext;
+                var userAgent = httpContext?.Request.Headers["User-Agent"].ToString() ?? string.Empty;
+                var ip = httpContext?.Connection.RemoteIpAddress?.ToString() ?? string.Empty;
+
+                if (IsProxyRequest(userAgent, ip))
+                {
+                    _logger.LogInformation("Open ignored due to proxy User-Agent or IP. UA: {UserAgent}, IP: {IP}", userAgent, ip);
+                    return;
+                }
+
                 var job = await _emailJobService.GetByIdAsync(jobId);
                 if (job != null)
                 {
