@@ -1,5 +1,4 @@
 ﻿using MailCrafter.Repositories;
-using MailCrafter.Repositories.EmailJob;
 using MailCrafter.Utils.Helpers;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;

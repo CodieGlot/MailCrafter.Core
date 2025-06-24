@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MailCrafter.Repositories.EmailJob
+namespace MailCrafter.Repositories
 {
     public class EmailJobRepository : MongoCollectionRepostioryBase<EmailJobEntity>, IEmailJobRepository
     {
