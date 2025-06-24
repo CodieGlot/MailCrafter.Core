@@ -40,16 +40,16 @@ namespace MailCrafter.Services
         {
             var trackingData = $"{jobId}:{recipientEmail}";
             var encryptedData = EncryptTrackingData(trackingData);
-            return $"https://localhost:7177/api/tracking/pixel/{encryptedData}";
-            //return $"https://mailcrafter-f6cyggezagarg5hs.southeastasia-01.azurewebsites.net/api/tracking/pixel/{encryptedData}";
+            //return $"https://localhost:7177/api/tracking/pixel/{encryptedData}";
+            return $"https://mailcrafter-f6cyggezagarg5hs.southeastasia-01.azurewebsites.net/api/tracking/pixel/{encryptedData}";
         }
 
         public string GenerateTrackingLink(string originalUrl, string jobId, string recipientEmail)
         {
             var trackingData = $"{jobId}:{recipientEmail}";
             var encryptedData = EncryptTrackingData(trackingData);
-            return $"https://localhost:7177/api/tracking/click/{encryptedData}?url={Uri.EscapeDataString(originalUrl)}";
-            //return $"https://mailcrafter-f6cyggezagarg5hs.southeastasia-01.azurewebsites.net/api/tracking/click/{encryptedData}?url={Uri.EscapeDataString(originalUrl)}";
+            //return $"https://localhost:7177/api/tracking/click/{encryptedData}?url={Uri.EscapeDataString(originalUrl)}";
+            return $"https://mailcrafter-f6cyggezagarg5hs.southeastasia-01.azurewebsites.net/api/tracking/click/{encryptedData}?url={Uri.EscapeDataString(originalUrl)}";
         }
 
         private bool IsProxyRequest(string userAgent) // Removed the 'ip' parameter
