@@ -1,11 +1,8 @@
 using MailCrafter.Domain;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System.Security.Cryptography;
 using System.Text;
-using Microsoft.AspNetCore.Http;
-using System.Linq;
 
 namespace MailCrafter.Services
 {
@@ -27,13 +24,12 @@ namespace MailCrafter.Services
             "camo-proxy"             // Image proxy used by GitHub and others
         };
 
-
-        public EmailTrackingService(IEmailJobService emailJobService, ILogger<EmailTrackingService> logger, IConfiguration configuration, IHttpContextAccessor httpContextAccessor)
+      
+        public EmailTrackingService(IEmailJobService emailJobService, ILogger<EmailTrackingService> logger, IConfiguration configuration)
         {
             _emailJobService = emailJobService;
             _logger = logger;
             _baseUrl = configuration["Tracking:BaseUrl"]!;
-            _httpContextAccessor = httpContextAccessor;
         }
 
         public string GenerateTrackingPixel(string jobId, string recipientEmail)
@@ -61,15 +57,6 @@ namespace MailCrafter.Services
 
             // Check if the user agent contains any of the known proxy strings.
             return ProxyUserAgents.Any(proxy => userAgent.Contains(proxy, StringComparison.OrdinalIgnoreCase));
-        }
-
-        private bool IsProxyRequest(string userAgent, string ip)
-        {
-            if (!string.IsNullOrEmpty(userAgent) && ProxyUserAgents.Any(proxy => userAgent.Contains(proxy, StringComparison.OrdinalIgnoreCase)))
-                return true;
-            if (!string.IsNullOrEmpty(ip))
-                return true;
-            return false;
         }
 
         public async Task TrackEmailOpen(string jobId, string recipientEmail)
